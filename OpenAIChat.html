@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>open-ai</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+        integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+        integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9" role="main">
+
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <h1>OpenAI聊天 <small>笑死</small></h1>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <div id="chat_windows" style="min-height: 600px;" class="row"> 
+                                   
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+
+
+            <div class="col-md-9" role="main" style="flex: auto;">
+                <form>
+                    <div class="form-group">
+                        <textarea id="text_chat_message_input" class="form-control" rows="3"></textarea>
+                    </div>
+                    <button id="btn_chat_message_send" type="button" class="btn btn-default">我想笑死</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        $(function () {
+
+            btn_chat_message_send_event();
+
+        })
+
+        function btn_chat_message_send_event() {
+            $("#btn_chat_message_send").click(function () {
+
+                var input_text = $("#text_chat_message_input").val();
+                $("#text_chat_message_input").val("");
+                var input_html = '<div class="col-xs-6 col-xs-offset-6"><p class="text-primary bg-info text-right">' + input_text + '</p></div>';
+                $("#chat_windows").append(input_html);
+
+                var url = "http://127.0.0.1:8081/open/ai/chat?chatMessage=" + input_text;
+                $.post(url, function (data) {
+                    var output_html = "";
+                    if (data.completionType == 1) {
+                        data.completionContents.forEach(element => {
+                             output_html = output_html + '<div class="col-xs-6 col-xs-offset-6"></div><div class="col-xs-6 col-xs-offset-0"><p class="text-left bg-success">' + element + '</p></div>\n';
+                        });
+                       
+                    } else {
+                        data.completionContents.forEach(element => {
+                             output_html = output_html + '<div class="col-xs-6 col-xs-offset-6"></div><div class="col-xs-6 col-xs-offset-0"><img src="' + element + '" alt="" class="img-rounded" style="max-height: 200px;max-width: 200px;" ></div>\n';
+                        });
+                    }
+                    $("#chat_windows").append(output_html);
+                }).error(function(xhr,status,info){
+                    var output_html = '<div class="col-xs-6 col-xs-offset-6"></div><div class="col-xs-6 col-xs-offset-0"><p class="text-left bg-success">不是很想理你</p></div>\n';
+                    $("#chat_windows").append(output_html);
+                });
+
+            })
+
+        }
+
+
+    </script>
+</body>
+
+</html>
